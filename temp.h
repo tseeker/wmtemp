@@ -11,8 +11,14 @@ typedef enum temperature_t {
 	CELCIUS, FAHRENHEIT, KELVIN
 } temperature_t;
 
-extern char *cpu_feature_name;
-extern char *sys_feature_name;
+typedef struct sensor_path_t {
+    char const *chip;
+    char const *feature;
+    char const *subfeature;
+} sensor_path_t;
+
+extern sensor_path_t cpu_sensor_path;
+extern sensor_path_t sys_sensor_path;
 
 extern temperature_t t_type;
 

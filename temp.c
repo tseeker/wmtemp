@@ -1,25 +1,36 @@
-#define	DEBUG(x) x                 
+#define	DEBUG(x) x;
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include <sensors.h>
+#include <sensors/error.h>
 
 #include "temp.h"
+
+sensor_path_t cpu_sensor_path = { NULL, NULL, NULL };
+sensor_path_t sys_sensor_path = { NULL, NULL, NULL };
+
+temperature_t t_type = CELCIUS;
+
+typedef struct sensor_source_t {
+    int valid;
+    sensors_chip_name const *chip;
+    int feature;
+} sensor_source_t;
 
 static FILE *f = NULL;
 static char sensors = 0;
 
-static const sensors_chip_name *chip_name = NULL;
-static const sensors_feature *feature;
+static sensor_source_t cpu_feature = {0, NULL, 0};
+static sensor_source_t sys_feature = {0, NULL, 0};
 
-char *cpu_feature_name = "temp1_input";
-char *sys_feature_name = "temp2_input";
-
-temperature_t t_type = CELCIUS;
-
-static int cpu_feature = 0;
-static int sys_feature = 0;
+void temp_set_default(sensor_path_t *path, char const *subfeature)
+{
+    if (!(path->chip || path->feature || path->subfeature)) {
+        path->subfeature = subfeature;
+    }
+}
 
 void temp_deinit() {
 	if (f != NULL) {
@@ -31,17 +42,54 @@ void temp_deinit() {
 	}
 }
 
-void temp_init(const char *filename) {
-	const sensors_chip_name *name;
-	int chip_nr = 0, f1, f2;
-
+void temp_find_feature(sensor_path_t const *path, sensor_source_t *feature)
+{
+	const sensors_chip_name *s_name;
+    const sensors_feature *s_feature;
+	const sensors_subfeature *s_subfeature;
+    char *s_feat_name;
 	char str[256];
+    int chip_nr = 0, f_nr;
 
-	char *feattext = NULL;
-	const sensors_subfeature *subfeature;
+	while ((s_name = sensors_get_detected_chips(NULL, &chip_nr)) != NULL) {
+		sensors_snprintf_chip_name(str, 256, s_name);
+        DEBUG(printf("L%d - chip_nr %d, name %s\n", __LINE__, chip_nr, str));
+        if (path->chip != NULL && strcasecmp(str, path->chip)) {
+            continue;
+        }
+
+        f_nr = 0;
+        while ((s_feature = sensors_get_features(s_name, &f_nr)) != NULL) {
+		    s_feat_name = sensors_get_label(s_name, s_feature);
+            DEBUG(printf("L%d - feature #%d : %s\n", __LINE__, f_nr, s_feat_name));
+            if (path->feature != NULL && strcasecmp(s_feat_name, path->feature)) {
+                continue;
+            }
+
+            s_subfeature = sensors_get_subfeature(s_name, s_feature,
+                            SENSORS_SUBFEATURE_TEMP_INPUT);
+		    if (!s_subfeature) {
+                continue;
+            }
+            DEBUG(printf("L%d - subfeature %s\n", __LINE__, s_subfeature->name));
+
+            if (path->subfeature == NULL
+                    || !strcasecmp(s_subfeature->name, path->subfeature)) {
+                feature->valid = 1;
+                feature->chip = s_name;
+                feature->feature = s_subfeature->number;
+                DEBUG(printf("L%d - found\n", __LINE__));
+                return;
+            }
+        }
+    }
+}
+
+void temp_init(const char *filename) {
+    temp_set_default(&cpu_sensor_path, "temp1_input");
+    temp_set_default(&sys_sensor_path, "temp2_input");
 
 	atexit(temp_deinit);
-
 	if (filename) {
 		f = fopen(filename, "r");
 		if (f == NULL) {
@@ -57,52 +105,28 @@ void temp_init(const char *filename) {
 	}
 
 	sensors = 1;
-	while ((name = sensors_get_detected_chips(NULL, &chip_nr)) != NULL &&
-			chip_name == NULL) {
-		f1 = f2 = 0;
-		DEBUG(printf("chip_nr=%d %d\n",chip_nr,__LINE__);)
+    temp_find_feature(&cpu_sensor_path, &cpu_feature);
+    temp_find_feature(&sys_sensor_path, &sys_feature);
+}
 
-		sensors_snprintf_chip_name(str, 256, name);
-		DEBUG(printf("chip name = %s (%d)\n",str,__LINE__);)
-
-		while ((feature = sensors_get_features( name, &f1)) != NULL) {
-
-		    feattext = sensors_get_label( name, feature );
-		    DEBUG(printf("f1=%d feattext=%s (%d) \n",f1,feattext,__LINE__);)
-  
-		    if ( (subfeature = sensors_get_subfeature (name, feature, SENSORS_SUBFEATURE_TEMP_INPUT)) ) {
-			DEBUG(printf("subfeature name =%s (%d) \n",subfeature->name,__LINE__);)
-			if (strcmp(subfeature->name, cpu_feature_name) == 0) {
-			    cpu_feature = subfeature->number;
-			    chip_name = name;
-			} 
-			else if (strcmp(subfeature->name, sys_feature_name) == 0) {
-			    sys_feature = subfeature->number;
-			}
-		    }
-		}
-	}
-
-	if (chip_name == NULL) {
-		fprintf(stderr, "could not find a suitable chip\n");
-		exit(1);
-	}
+unsigned int temp_read(sensor_source_t const *source) {
+    double value;
+    if (source->valid) {
+        if (sensors_get_value(source->chip, source->feature, &value)) {
+            return 0;
+        }
+        if (t_type == FAHRENHEIT) {
+            value = TO_FAHRENHEIT(value);
+        } else if (t_type == KELVIN) {
+            value = TO_KELVIN(value);
+        }
+        return (unsigned int)(value);
+    } else {
+        return 0;
+    }
 }
 
 void temp_getusage(unsigned int *cpu_temp, unsigned int *sys_temp) {
-	double cpu, sys;
-
-	sensors_get_value(chip_name, cpu_feature, &cpu);
-	sensors_get_value(chip_name, sys_feature, &sys);
-
-	if (t_type == FAHRENHEIT) {
-		cpu = TO_FAHRENHEIT(cpu);
-		sys = TO_FAHRENHEIT(sys);
-	} else if (t_type == KELVIN) {
-		cpu = TO_KELVIN(cpu);
-		sys = TO_KELVIN(sys);
-	}
-	
-	*cpu_temp = (unsigned int)(cpu);
-	*sys_temp = (unsigned int)(sys);
+    *cpu_temp = temp_read(&cpu_feature);
+    *sys_temp = temp_read(&sys_feature);
 }

@@ -64,6 +64,7 @@ static void switch_light(void);
 static void draw_cpudigit(int per);
 static void draw_sysdigit(int per);
 static void parse_arguments(int argc, char **argv);
+static void parse_sensor_path(sensor_path_t *path, char *argument);
 static void print_help(char *prog);
 
 int main(int argc, char **argv)
@@ -363,11 +364,11 @@ static void parse_arguments(int argc, char **argv)
 		  i++;
 	  }
 	  else if (!strcmp(argv[i], "-s")) {
-		  char *t;
+		  sensor_path_t t;
 
-		  t = cpu_feature_name;
-		  cpu_feature_name = sys_feature_name;
-		  sys_feature_name = t;
+		  t = cpu_sensor_path;
+		  cpu_sensor_path = sys_sensor_path;
+		  sys_sensor_path = t;
 	  }
 	  else if (!strcmp(argv[i], "-cf")) {
 		  if (argc == i + 1) {
@@ -375,7 +376,7 @@ static void parse_arguments(int argc, char **argv)
 			exit(1);
 		  }
 
-		  cpu_feature_name = argv[i + 1];
+		  cpu_sensor_path.subfeature = argv[i + 1];
 		  i++;
 	  }
 	  else if (!strcmp(argv[i], "-sf")) {
@@ -384,7 +385,16 @@ static void parse_arguments(int argc, char **argv)
 			exit(1);
 		  }
 
-		  sys_feature_name = argv[i + 1];
+		  sys_sensor_path.subfeature = argv[i + 1];
+		  i++;
+	  }
+	  else if (!strcmp(argv[i], "-cp") || !strcmp(argv[i], "-sp")) {
+		  if (argc == i + 1) {
+			fprintf(stderr, "%s: error parsing argument for option %s\n", argv[0], argv[i]);
+			exit(1);
+		  }
+          parse_sensor_path(argv[i][1] == 'c' ? &cpu_sensor_path : &sys_sensor_path,
+				  argv[i + 1]);
 		  i++;
 	  }
 	  else if (!strcmp(argv[i], "-f"))
@@ -396,6 +406,25 @@ static void parse_arguments(int argc, char **argv)
          print_help(argv[0]), exit(1);
       }
    }
+}
+
+static void parse_sensor_path(sensor_path_t *path, char *argument)
+{
+	char const ** parts[] = { &path->chip, &path->feature, &path->subfeature };
+	int i = 0;
+	char * next;
+	while (i < 3) {
+		next = strchr(argument, '/');
+		if (next != argument) {
+			*parts[i] = argument;
+		}
+		if (!next) {
+			break;
+		}
+		*next = '\0';
+		argument = next + 1;
+		i ++;
+	}
 }
 
 static void print_help(char *prog)
@@ -422,6 +451,10 @@ static void print_help(char *prog)
    printf("                                 ('temp1_input' is default)\n");
    printf("  -sf <feature>                  which feature to use for sys temperature\n");
    printf("                                 ('temp2_input' is default)\n");
+   printf("  -cp <chip/feature/subft.>      full cpu temperature sensor path\n");
+   printf("                                 ('//temp1_input' is default)\n");
+   printf("  -sp <chip/feature/subft.>      full system temperature sensor path\n");
+   printf("                                 ('//temp2_input' is default)\n");
    printf("  -s                             swap the cpu and sys temperatures\n");
    printf("                                 (/etc/sensors.conf is default)\n");
    printf("  -f                             show temperatures in Fahrenheit\n");
