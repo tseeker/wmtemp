@@ -1,0 +1,28 @@
+Make sure lm_sensors is installed, it will not work without it.
+
+You might want to take a look at the Makefile to change an include path or
+library path.
+
+* Install with the following commands:
+
+    make
+    su
+    make install
+
+
+The default install path is /usr/local/bin, if you do not want this, use
+
+    make DEST=/to/another/path install
+
+to install wmtemp to /to/an/other/path.
+
+To install the manual page to another location (default is
+/usr/local/share/man/man1), use:
+
+    make MAN=/to/another/path install
+
+Or combine the above :).
+
+* Check out `wmtemp --help` for options.
+
+* See the file COPYING for license information

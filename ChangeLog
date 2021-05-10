@@ -1,0 +1,42 @@
+0.0.6 (2008-04-28)
+* Riccardo Stagni <unriccio@email.it> (the current Debian maintainer of this
+  package) submitted a patch fixing some syntactic stuff in the -h output
+
+0.0.5 (2005-06-23)
+* Found out Debian (http://www.debian.org/) has a package and the maintainer
+  has added a manual page, which I've shamelessly copied. Only the part
+  explaining this package had no manual page is removed, since it's no longer
+  true :). Thanks to Lars Steinke <lss@debian.org> for maintaining the Debian
+  package.
+
+0.0.4 (2004-03-12)
+* Fixed a small bug in the Makefile, probably caused by an older version of
+  sed, which caused gcc to complain about extra characters after an #include
+  when compiling the xpms. Again thanks to Jean Delvare for pointing this out.
+
+0.0.3 (2004-03-10)
+* Modified the background_off.xpm image a bit, so it would be more consistent
+  with WMCPULoad and WMMemLoad (more shadow at the borders)
+* Added a flag to show temperatures in Fahrenheit
+* Added a flag to show temperatures in Kelvin
+* Modified the digit code so it could show values greater than 100
+* Modified the build system, so XPMs are build seperately instead of included
+  in the main.c file
+* Stripped all long arguments, they are quite useless and take more effort to
+  type
+* Do not wait <interval> seconds before the first update, just update, then
+  enter the main loop.
+* Removed the optimization options for Pentium 4, not everybody has a Pentium
+  4 to play with :). Also made de CFLAGS a bit more conservative.
+* Some textual changes in the help output, thanks to Jean Delvare
+  (http://www.ensicaen.ismra.fr/~delvare/) for pointing that out.
+
+0.0.2 (2004-03-08)
+* Added a couple of options, so CPU and SYS features could be swapped or
+  entirely customized
+* Added README, COPYING and AUTHORS files and made the package
+
+0.0.1 (2004-03-08)
+* Stripped WMMemLoad to the bones and replaced the memory statistics code
+  with temperature statistics code, obtained from libsensors (a part of
+  the lm_sensors package

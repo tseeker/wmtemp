@@ -1,0 +1,14 @@
+Source: wmtemp
+Section: x11
+Priority: extra
+Maintainer: Riccardo Stagni <unriccio@email.it>
+Build-Depends: debhelper (>= 7.0.50~), libsensors4-dev (>= 3.1.2), libxpm-dev, libxext-dev, x11proto-xext-dev, libx11-dev
+Standards-Version: 3.8.3
+Homepage: http://gnodde.org/wmtemp/
+
+Package: wmtemp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, lm-sensors
+Description: WM dock applet displaying lm_sensors temperature values
+ Nifty small dock applet for Window Maker that continuously displays 
+ CPU and case temperature by virtue of lm_sensors 

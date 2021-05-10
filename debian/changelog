@@ -1,0 +1,112 @@
+wmtemp (0.0.6-3.3) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Fix "FTBFS: dockapp.c:52:16: error: variable 'stat' set but not used
+    [-Werror=unused-but-set-variable]": apply patch from peter green, removing
+    two unused variables. (Closes: #646488)
+
+ -- gregor herrmann <gregoa@debian.org>  Tue, 22 Nov 2011 20:45:17 +0100
+
+wmtemp (0.0.6-3.2) unstable; urgency=low
+
+  * Non-maintainer upload to fix the previous upload.
+  * Don't try to open /etc/sensors.conf, use the default path instead
+    unless a configurationf file is specified.
+
+ -- Aurelien Jarno <aurel32@debian.org>  Sat, 09 Apr 2011 16:10:42 +0200
+
+wmtemp (0.0.6-3.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Switch to libsensors4 api, thanks to Hugo Vanwoerkom for the patch.
+    (Closes: #610816).
+
+ -- Aurelien Jarno <aurel32@debian.org>  Sat, 12 Mar 2011 22:13:32 +0100
+
+wmtemp (0.0.6-3) unstable; urgency=low
+
+  * Fix "backlight color change incomplete" changing the xpm files
+    (Closes: #523890)
+  * Now we use the automagical dh
+  * Bumped Standards-Version to 3.8.3, no changes needed.
+  * Lintian fixes: copyright-with-old-dh-make-debian-copyright
+
+ -- Riccardo Stagni <unriccio@email.it>  Thu, 12 Nov 2009 21:42:55 +0100
+
+wmtemp (0.0.6-2) unstable; urgency=low
+
+  * Bumped Standards-Version to 3.8.0, changed debian/rules to support the
+    standard values of DEB_BUILD_OPTIONS:
+    added support to parallel builds (even if we compile just 3 C source
+    files) and removed the nostrip check (because we rely on dh_strip)
+  * debian/control: lowered package priority (we depend on lm-sensors
+    which is extra).
+  * Removed useless xutils dependency
+    (this also fixes lintian's build-depends-on-obsolete-package)
+  * Added dependency on x11proto-xext-dev as we use some of its headers.
+
+ -- Riccardo Stagni <unriccio@email.it>  Fri, 20 Jun 2008 02:34:07 +0200
+
+wmtemp (0.0.6-1) unstable; urgency=low
+
+  * New upstream release
+    - corrected some cosmetic issues within -h output (closes: #474107)
+  * Removed the check from debian/rules for Makefile existance in the "clean"
+    target: since we don't use autoconf, a missing makefile *should* be a
+    problem anywhere.
+  * Updated debian/copyright
+
+ -- Riccardo Stagni <unriccio@email.it>  Mon, 28 Apr 2008 19:57:33 +0200
+
+wmtemp (0.0.5-5) unstable; urgency=low
+
+  * New maintainer (closes: #465958)
+  * Added Homepage field (from package description)
+  * Update menu file
+  * Standards-Version bumped to 3.7.3 (changed menu section)
+  * lintian:
+    - debian-rules-ignores-make-clean-error (even if we don't use autoconf)
+    - copyright-without-copyright-notice (rewritten debian/copyright)
+    - build-depends-on-1-revision
+  * Disable forced stripping (closes: #438277)
+  * Added watchfile
+
+ -- Riccardo Stagni <unriccio@email.it>  Thu, 27 Mar 2008 01:22:25 +0100
+
+wmtemp (0.0.5-4) unstable; urgency=low
+
+  * Fixed Build-Depends for xlibs-dev transition using
+    xlibs-split-check and objdump (closes #346882).
+
+ -- Lars Steinke <lss@debian.org>  Sat, 14 Jan 2006 14:22:10 +0100
+
+wmtemp (0.0.5-3) unstable; urgency=low
+
+  * Fixed lintian warning concerning format of menu entry. 
+
+ -- Lars Steinke <lss@debian.org>  Sat, 14 Jan 2006 14:10:52 +0100
+
+wmtemp (0.0.5-2) unstable; urgency=low
+
+  * Forgot calling dh_installmenu.
+
+ -- Lars Steinke <lss@debian.org>  Sun, 18 Dec 2005 17:57:35 +0100
+
+wmtemp (0.0.5-1) unstable; urgency=low
+
+  * New upstream (closes #315552).
+
+ -- Lars Steinke <lss@debian.org>  Sun,  18 Dec 2005 17:14:00 +0200
+
+wmtemp (0.0.4-2) unstable; urgency=low
+
+  * Manpage fixes.
+
+ -- Lars Steinke (Debian Developer) <lss@debian.org>  Fri,  4 Jun 2004 17:14:00 +0200
+
+wmtemp (0.0.4-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Lars Steinke (Debian Developer) <lss@debian.org>  Fri,  4 Jun 2004 15:14:00 +0200
+

@@ -1,0 +1,2 @@
+?package(wmtemp):needs="X11" section="Applications/System/Monitoring"\
+  title="wmtemp" command="/usr/bin/wmtemp"
